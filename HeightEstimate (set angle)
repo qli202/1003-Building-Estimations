@@ -17,7 +17,7 @@
 var cameraVideoPage = new CameraVideoPageController(
         cameraVideoPageInitialised);
 
-var cameraHeight, /*baseAngle = 50, apexAngle =  100*/ heightOfUser = 1.8, distance, height, looper = 0
+var cameraHeight, baseAngle, apexAngle, heightOfUser, distance, height, looper = 0
 var cameraVideoPage = new CameraVideoPageController(
         cameraVideoPageInitialised);
 //Loop entire program indefinitely
@@ -32,11 +32,16 @@ window.addEventListener("deviceorientation", handleOrientation, true);
 
 function handleOrientation(event)
 {
-    var alpha = event.alpha
-    var beta = [event.beta]
-    var gamma = event.gamma
-	cameraVideoPage.setHeadsUpDisplayHTML("beta: " + beta + "<br/>")      
+    alpha = event.alpha
+    betaAngle = [event.beta]
+    gamma = event.gamma
+cameraVideoPage.setHeadsUpDisplayHTML("beta:" + betaAngle + "<br/>")
+    
 }
+
+//cameraVideoPage.setHeadsUpDisplayHTML("beta:" + beta + "<br/>")
+
+
 
 //cameraVideoPage.setHeadsUpDisplayHTML("beta:" + beta + "<br/>")
 
@@ -81,7 +86,7 @@ function handleOrientation(event)
 //Function to calculate distance from object
 function calculateDistanceToObject(beta, heightOfUser)
 {
-    angleToBase = beta * (Math.PI / 180) //Assuming that device screen up is 0 degrees, that's what my phone says atleast
+    angleToBase = betaBase * (Math.PI / 180) //Assuming that device screen up is 0 degrees, that's what my phone says atleast
     distance = heightOfUser * Math.tan(angleToBase) // trig
     return distance 
 }
@@ -99,17 +104,15 @@ function heightOfObject(distance, heightOfUser, beta)
 // ground, in metres.
 function setCameraHeightValue()
 {
-    //Ask user to input the user's height
-    heightOfUser = Number(prompt("Enter height of the user: "));
+    heightOfUser = Number(prompt("Enter height of the user: "))
     
-    //Continues to ask for the user's height if it was NaN or negative
     while (isNaN(heightOfUser) === true || heightOfUser < 0)
         {
-            heightOfUser = prompt("Enter a positive numeric value for the height: ");
+            heightOfUser = prompt("Enter a positive numeric value for the height: ")
         }
-    
-    //Pop-up message specifying the height of user
-    cameraVideoPage.displayMessage("Height of user: " + heightOfUser + " metres", 2000);
+
+    cameraVideoPage.displayMessage("Height of user: " + heightOfUser + " metres", 2000)
+    return heightOfUser
     // Step 3: Set camera height
     // check if input is a number and is positive
     // display on screen using the displayMessage method
@@ -117,28 +120,24 @@ function setCameraHeightValue()
     
 // This function is called by a button to set the angle to the base of
 // the object being measured.  It uses the current smoothed tilt angle.
-function setBaseTiltAngle(angleToBase, beta)
+function setBaseTiltAngle()
 {
-    var angleToBase = beta;
-    cameraVideoPage.setHeadsUpDisplayHTML("Base angle: " + beta + "<br/>"); 
+    betaBase = betaAngle
+    cameraVideoPage.displayMessage("base angle: " + betaBase, 2000)
     // Step 4: Record tilt angle 
     // display on screen using the displayMessage method
 }
-
-setBaseTiltAngle.onclick = function() {setBaseAngle(angleToBase, beta)};
 
 // This function is called by a button to set the angle to the apex of
 // the object being measured.  It uses the current smoothed tilt angle.
-function setApexTiltAngle(angleToApex, beta)
+function setApexTiltAngle()
 {
-    var angleToApex = beta;
-    cameraVideoPage.setHeadsUpDisplayHTML("Apex angle: " + beta + "<br/>"); 
+    betaApex = betaAngle
+    cameraVideoPage.displayMessage("apex angle: " + betaApex, 2000)
+    
     // Step 4: Record tilt angle 
     // display on screen using the displayMessage method
 }
-
-setApexTiltAngle.onclick = function() {setApexAngle(angleToApex, beta)};
-
 function cameraVideoPageInitialised(HTML)
 {
     cameraVideoPage.setHeadsUpDisplayHTML(HTML);
