@@ -18,6 +18,7 @@ var cameraVideoPage = new CameraVideoPageController(
         cameraVideoPageInitialised);
 
 var cameraHeight, betaApex, heightOfUser, distance, height, betaBase, looper = 0
+var storedBeta = Array.apply(null, Array(20)).map(Number.prototype.valueOf,0);
 var cameraVideoPage = new CameraVideoPageController(
         cameraVideoPageInitialised);
 
@@ -26,11 +27,20 @@ window.addEventListener("deviceorientation", handleOrientation, true);
 
 function handleOrientation(event)
 {
+    var betaSum = 0
     alpha = event.alpha
-    betaAngle = event.beta
+    beta = event.beta
     gamma = event.gamma
-//cameraVideoPage.setHeadsUpDisplayHTML("beta:" + betaAngle + "<br/>")
-cameraVideoPage.setHeadsUpDisplayHTML("beta: " + betaAngle + "</br>" + "Distance: " + distance + "</br>" + "Height: " + height)    
+
+    storedBeta.push(beta)
+    storedBeta.shift()
+    for (i=0; i<storedBeta.length; i++)
+        {
+            betaSum += storedBeta[i]
+        }
+    betaAngle = betaSum / storedBeta.length
+    
+cameraVideoPage.setHeadsUpDisplayHTML("beta: " + betaAngle.toFixed(1) + "</br>" + "Distance: " + distance + "</br>" + "Height: " + height)    
 }
 
 
@@ -41,7 +51,7 @@ function calculateDistanceToObject(beta, heightOfUser)
     angleToBase = betaBase * (Math.PI / 180) //Assuming that device screen up is 0 degrees, that's what my phone says atleast
     distance = heightOfUser * Math.tan(angleToBase) // trig
 		
-    return distance 
+    return distance.toFixed(2) 
 }
 
 //function to determine the height of the object
@@ -51,7 +61,7 @@ function heightOfObject(distance, heightOfUser, beta)
     betaApexRads = (Math.PI / 180) * (beta - 90) //minus 90 from beta value as 90 degrees is when phone is vertical, draw triangle to confirm angle is correct
     heightObjectPartial = Math.tan(betaApexRads) * distance // trig
     heightOfObject = heightObjectPartial + heightOfUser // partial height plus height of user gives height of object
-    return heightOfObject
+    return heightOfObject.toFixed(2)
 }
 
 // This function is called by a button to set the height of phone from the
