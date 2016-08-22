@@ -17,7 +17,7 @@
 var cameraVideoPage = new CameraVideoPageController(
         cameraVideoPageInitialised);
 
-var cameraHeight, betaApex, heightOfUser, distance, height, betaBase, looper = 0
+var cameraHeight, betaApex, heightOfUser, distance, height, betaBase
 var storedBeta = Array.apply(null, Array(20)).map(Number.prototype.valueOf,0);
 var cameraVideoPage = new CameraVideoPageController(
         cameraVideoPageInitialised);
