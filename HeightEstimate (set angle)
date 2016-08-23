@@ -17,30 +17,29 @@
 var cameraVideoPage = new CameraVideoPageController(
         cameraVideoPageInitialised);
 
-var cameraHeight, betaApex, heightOfUser, distance, height, betaBase, looper = 0
+var cameraHeight, betaApex, heightOfUser, distance, height, betaBase
 var storedBeta = Array.apply(null, Array(20)).map(Number.prototype.valueOf,0);
 var cameraVideoPage = new CameraVideoPageController(
         cameraVideoPageInitialised);
 
-// You may need to create variables to store state.
 window.addEventListener("deviceorientation", handleOrientation, true);
+
 
 function handleOrientation(event)
 {
     var betaSum = 0
-    alpha = event.alpha
     beta = event.beta
-    gamma = event.gamma
 
-    storedBeta.push(beta)
+   storedBeta.push(beta)
     storedBeta.shift()
     for (i=0; i<storedBeta.length; i++)
         {
+           
             betaSum += storedBeta[i]
         }
     betaAngle = betaSum / storedBeta.length
     
-cameraVideoPage.setHeadsUpDisplayHTML("beta: " + betaAngle.toFixed(1) + "</br>" + "Distance: " + distance + "</br>" + "Height: " + height)    
+cameraVideoPage.setHeadsUpDisplayHTML("Beta: " + betaAngle.toFixed(1) + "°" + "</br>" + "Distance (m): " + distance + "</br>" + "Height (m): " + height)    
 }
 
 
@@ -54,8 +53,9 @@ function calculateDistanceToObject(beta, heightOfUser)
     return distance.toFixed(2) 
 }
 
+
 //function to determine the height of the object
-function heightOfObject(distance, heightOfUser, beta)
+function calculateHeightOfObject(distance, heightOfUser, beta)
 {
     var heightOfObject
     betaApexRads = (Math.PI / 180) * (beta - 90) //minus 90 from beta value as 90 degrees is when phone is vertical, draw triangle to confirm angle is correct
@@ -64,166 +64,102 @@ function heightOfObject(distance, heightOfUser, beta)
     return heightOfObject.toFixed(2)
 }
 
+
 // This function is called by a button to set the height of phone from the
 // ground, in metres.
 function setCameraHeightValue()
 {
-    heightOfUser = Number(prompt("Enter height of the user: "))
+    heightOfUser = Number(prompt("Enter height of the user in metres: "))
     
     while (isNaN(heightOfUser) === true || heightOfUser < 0)
         {
-            heightOfUser = prompt("Enter a positive numeric value for the height: ")
+            heightOfUser = prompt("Enter a positive numeric value for the height in metres: ")
         }
-
-    cameraVideoPage.displayMessage("Height of user: " + heightOfUser + " metres", 1000)
     
-      if (0 < betaBase && betaBase < 180)
+    cameraVideoPage.displayMessage("Height of user: " + heightOfUser + " metre/s", 1000)
+    
+    if (isNaN(heightOfUser) === false && betaApex > betaBase && betaBase > 0)
         {
-            if (0 < betaApex && betaApex < 180)
-                {    
-                    if (betaApex > betaBase)
-                        {
-                            distance = calculateDistanceToObject(betaBase, heightOfUser);
-                            height = heightOfObject(distance, heightOfUser, betaApex);
-                        }
-                }
-        }
-
-    //Throw up errors if angles are wrong
-    if (betaBase < 0 || 180 < betaBase)
-        {
-            cameraVideoPage.displayMessage("Base angle must be inbetween 0° and 180°", 2000);
-        }
-    if (betaApex < 0 || 180 < betaApex)
-        {
-            cameraVideoPage.displayMessage("Apex angle must be inbetween 0° and 180°", 2000);
-        }
-    if (betaApex < betaBase)
-        {
-            cameraVideoPage.displayMessage("Building apex must be higher than base- consider reversing", 2000);
-        }
-    if (betaApex === null || betaBase === null)
-        {
-            cameraVideoPage.displayMessage("Unable to detect angle", 2000);
-        }
-
-    //Check calculations and display if correct
-    if (distance > 0)
-        {
-            cameraVideoPage.setHeadsUpDisplayHTML("Distance: " + distance + "</br>" + "Height: " + height);
+            distance = calculateDistanceToObject(betaBase, heightOfUser);
+            height = calculateHeightOfObject(distance, heightOfUser, betaApex);
         }
     else
         {
-            cameraVideoPage.displayMessage("Distance < 0, please check and reenter inputs", 5);
+            errorcheck()
         }
-    // Step 3: Set camera height
-    // check if input is a number and is positive
-    // display on screen using the displayMessage method
 }
-    
+   
+
+
 // This function is called by a button to set the angle to the base of
 // the object being measured.  It uses the current smoothed tilt angle.
 function setBaseTiltAngle()
 {
     betaBase = betaAngle
-    cameraVideoPage.displayMessage("base angle: " + betaBase, 1000)
+    cameraVideoPage.displayMessage("base angle: " + betaBase.toFixed(1) + "°", 1000)
     
     //Check possible angles, Calculate if correct
-    if (0 < betaBase && betaBase < 180)
+    if (isNaN(heightOfUser) === false && betaApex > betaBase && betaBase > 0)
         {
-            if (0 < betaApex && betaApex < 180)
-                {    
-                    if (betaApex > betaBase)
-                        {
-                            distance = calculateDistanceToObject(betaBase, heightOfUser);
-                            height = heightOfObject(distance, heightOfUser, betaApex);
-                        }
-                }
-        }
-
-    //Throw up errors if angles are wrong
-    if (betaBase < 0 || 180 < betaBase)
-        {
-            cameraVideoPage.displayMessage("Base angle must be inbetween 0° and 180°", 1000);
-        }
-    if (betaApex < 0 || 180 < betaApex)
-        {
-            cameraVideoPage.displayMessage("Apex angle must be inbetween 0° and 180°", 1000);
-        }
-    if (betaApex < betaBase)
-        {
-            cameraVideoPage.displayMessage("Building apex must be higher than base- consider reversing", 1000);
-        }
-    if (betaApex === null || betaBase === null)
-        {
-            cameraVideoPage.displayMessage("Unable to detect angle", 1000);
-        }
-
-    //Check calculations and display if correct
-    if (distance > 0)
-        {
-            //cameraVideoPage.setHeadsUpDisplayHTML("beta: " + betaAngle + "</br>" + "Distance: " + distance + "</br>" + "Height: " + height);
+            distance = calculateDistanceToObject(betaBase, heightOfUser);
+            height = calculateHeightOfObject(distance, heightOfUser, betaApex);
         }
     else
         {
-            cameraVideoPage.displayMessage("Distance < 0, please check and reenter inputs", 5);
+            errorcheck()
         }
-    // Step 4: Record tilt angle 
-    // display on screen using the displayMessage method
 }
+          
 
 // This function is called by a button to set the angle to the apex of
 // the object being measured.  It uses the current smoothed tilt angle.
 function setApexTiltAngle()
 {
     betaApex = betaAngle
-    cameraVideoPage.displayMessage("apex angle: " + betaApex, 1000)
+    cameraVideoPage.displayMessage("apex angle: " + betaApex.toFixed(1) + "°", 1000)
     
     //Check possible angles, Calculate if correct
-    if (0 < betaBase && betaBase < 180)
+    if (isNaN(heightOfUser) === false && betaApex > betaBase && betaBase > 0)
         {
-            if (0 < betaApex && betaApex < 180)
-                {    
-                    if (betaApex > betaBase)
-                        {
-                            distance = calculateDistanceToObject(betaBase, heightOfUser);
-                            height = heightOfObject(distance, heightOfUser, betaApex);
-                        }
-                }
-        }
-
-    //Throw up errors if angles are wrong
-    if (betaBase < 0 || 180 < betaBase)
-        {
-            cameraVideoPage.displayMessage("Base angle must be inbetween 0° and 180°", 2000);
-        }
-    if (betaApex < 0 || 180 < betaApex)
-        {
-            cameraVideoPage.displayMessage("Apex angle must be inbetween 0° and 180°", 2000);
-        }
-    if (betaApex < betaBase)
-        {
-            cameraVideoPage.displayMessage("Building apex must be higher than base- consider reversing", 2000);
-        }
-    if (betaApex === null || betaBase === null)
-        {
-            cameraVideoPage.displayMessage("Unable to detect angle", 2000);
-        }
-
-    //Check calculations and display if correct
-    if (distance > 0)
-        {
-            cameraVideoPage.setHeadsUpDisplayHTML("Distance: " + distance + "</br>" + "Height: " + height);
+            distance = calculateDistanceToObject(betaBase, heightOfUser);
+            height = calculateHeightOfObject(distance, heightOfUser, betaApex);
         }
     else
         {
-            cameraVideoPage.displayMessage("Distance < 0, please check and reenter inputs", 5);
+            errorcheck()
         }
-    // Step 4: Record tilt angle 
-    // display on screen using the displayMessage method
 }
+
+
 function cameraVideoPageInitialised(HTML)
 {
     cameraVideoPage.setHeadsUpDisplayHTML(HTML);
     // Step 1: Check for and intialise deviceMotion
+}
+
+
+function errorcheck()
+{
+    if (betaBase < 0 || 180 < betaBase)
+        {
+            cameraVideoPage.displayMessage("Base angle must be inbetween 0° and 180°, set base angle again", 3000);
+            betaBase = undefined
+        }
+    if (betaApex < 0 || 180 < betaApex)
+        {
+            cameraVideoPage.displayMessage("Apex angle must be inbetween 0° and 180, set apex angle again°", 3000);
+            betaApex = undefined
+        }
+    if (betaApex < betaBase)
+        {
+            cameraVideoPage.displayMessage("Building apex must be higher than base, set both angles again", 3000);
+            betaApex = undefined
+            betaBase = undefined
+        }
+    if (distance < 0)
+        {
+            cameraVideoPage.displayMessage("Distance < 0, please check and reenter inputs", 3000);
+            betaApex = undefined
+            betaBase = undefined
+        }
 }
