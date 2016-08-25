@@ -1,0 +1,184 @@
+// The CameraVideoPageController is a class that controls the camera 
+// video page.  This class provides a some useful methods you will
+// need to call:
+//     cameraVideoPage.displayMessage(message, timeout):
+//         Causes a short message string to be displayed on the
+//         page for a brief period.  Useful for showing quick
+//         notifications to the user.  message is a plain string.
+//         timeout is option and denotes the length of time in msec
+//         to show the message for.
+//     cameraVideoPage.setHeadsUpDisplayHTML(html):
+//         This will set or update the heads-up-display with the
+//         text given in the html argument.  Usually this should 
+//         just be a string with text and line breaks (<br />).
+
+// Initialise the camera video page and callback to our 
+// cameraVideoPageInitialised() function when ready.
+var cameraVideoPage = new CameraVideoPageController(
+        cameraVideoPageInitialised);
+
+// Declare variables
+var cameraHeight, betaApex, userHeight, distance, height, betaBase;
+
+// Create array of 20 zeroes
+var storedBeta = Array.apply(null, Array(20)).map(Number.prototype.valueOf,0);
+
+// Update beta using gyroscope values
+window.addEventListener("deviceorientation", handleOrientation, true);
+
+// Function to calculate the average of the array and update HUD
+function handleOrientation(event)
+{
+    // Declare variables
+    var betaSum = 0;
+    
+    // Update beta
+    beta = event.beta;
+    
+    // Store the value of beta in the array
+    storedBeta.push(beta);
+    storedBeta.shift();
+    
+    // Calculate the average of the stored values
+    for (i=0; i<storedBeta.length; i++)
+        {
+            betaSum += storedBeta[i];
+        }
+    betaAngle = betaSum / storedBeta.length;
+    
+    // Update the HUD with beta, distance and height
+    cameraVideoPage.setHeadsUpDisplayHTML("Beta: " + betaAngle.toFixed(1) + "°" + "</br>" + "Distance (m): " + distance + "</br>" + "Height (m): " + height);    
+}
+
+
+//Function to calculate distance from object
+function calculateDistance(beta, userHeight)
+{
+    // Declare variables
+    var distance, betaBaseRads;
+    
+    // Convert beta to radians and calculate distance
+    betaBaseRads = betaBase * (Math.PI / 180); // Assumes that device screen up is 0 degrees
+    distance = userHeight * Math.tan(betaBaseRads);
+    return distance.toFixed(2);
+}
+
+// Function to determine the height of the object
+function calculateHeight(distance, userHeight, beta)
+{
+    // Declare variables
+    var objectHeight, heightAboveCamera, betaApexRads;
+    
+    // Convert to radians and transform angle to construct triangle
+    betaApexRads = (Math.PI / 180) * (beta - 90);
+
+    //Calculate height of building
+    heightAboveCamera = Math.tan(betaApexRads) * distance; // trigonometry
+    objectHeight = heightAboveCamera + userHeight;
+    return objectHeight.toFixed(2);
+}
+
+
+// This function is called by a button to set the height of phone from the ground, in metres.
+function setCameraHeightValue()
+{
+    // Declare variables
+    var userHeight
+    
+    // Prompt user for height
+    userHeight = Number(prompt("Enter height of the user in metres: "));
+    
+    // Loop until an appropriate value is given
+    while (isNaN(userHeight) || userHeight < 0)
+        {
+            userHeight = prompt("Enter a positive numeric value for the height in metres: ");
+        }
+    
+    // Display inputted value
+    cameraVideoPage.displayMessage("Height of user: " + userHeight + " metre/s", 1000);
+    
+    // Reset other values
+    betaBase = undefined;
+    betaApex = undefined;
+}
+   
+
+// This function is called by a button to set the angle to the base of the object being measured.  It uses the current smoothed tilt angle.
+function setBaseTiltAngle()
+{
+    betaBase = betaAngle;
+    cameraVideoPage.displayMessage("base angle: " + betaBase.toFixed(1) + "°", 1000);
+    
+    // Check possible angles, Calculate if correct
+    if (!isNaN(userHeight) && betaBase > 0)
+        {
+            distance = calculateDistance(betaBase, userHeight);
+            betaApex = undefined;
+        }
+    else
+        {
+            // Display appropriate errors
+            errorcheck();
+        }
+}
+          
+
+// This function is called by a button to set the angle to the apex of
+// the object being measured.  It uses the current smoothed tilt angle.
+function setApexTiltAngle()
+{
+    betaApex = betaAngle;
+    cameraVideoPage.displayMessage("apex angle: " + betaApex.toFixed(1) + "°", 1000);
+    
+    // Check possible angles, Calculate if correct
+    if (!isNaN(userHeight) && betaApex > betaBase && betaBase > 0)
+        {
+            height = calculateHeight(distance, userHeight, betaApex);
+        }
+    else
+        {
+            // Display appropriate errors
+            errorcheck();
+        }
+}
+
+// Function to set HUD
+function cameraVideoPageInitialised(HTML)
+{
+    cameraVideoPage.setHeadsUpDisplayHTML(HTML);
+}
+
+// Display appropriate errors
+function errorcheck()
+{
+    // Check if betaBase is between 0 and 180
+    if (betaBase < 0 || 180 < betaBase)
+        {
+            // Display error and reset betaBase
+            cameraVideoPage.displayMessage("Base angle must be inbetween 0° and 180°, set base angle again", 3000);
+            betaBase = undefined;
+        }
+    // Check if betaBase is between 0 and 180
+    if (betaApex < 0 || 180 < betaApex)
+        {
+            // Display error and reset betaApex
+            cameraVideoPage.displayMessage("Apex angle must be inbetween 0° and 180, set apex angle again°", 3000);
+            betaApex = undefined;
+        }
+    // Check if Apex and Base is inputted correctly
+    if (betaApex < betaBase)
+        {
+            // Display error and reset betaApex and betaBase
+            cameraVideoPage.displayMessage("Building apex must be higher than base, set both angles again", 3000);
+            betaApex = undefined;
+            betaBase = undefined;
+        }
+    // Check if distance has been calculated correctly
+    if (distance < 0)
+        {
+            // Display error and reset betaApex and betaBase
+            cameraVideoPage.displayMessage("Distance < 0, please check and reenter inputs", 3000);
+            betaApex = undefined;
+            betaBase = undefined;
+        }
+}
