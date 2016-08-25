@@ -77,7 +77,7 @@ function setCameraHeightValue()
         }
     
     cameraVideoPage.displayMessage("Height of user: " + heightOfUser + " metre/s", 1000)
-    
+ // check for possible angles, calculate if right   
     if (isNaN(heightOfUser) === false && betaApex > betaBase && betaBase > 0)
         {
             distance = calculateDistanceToObject(betaBase, heightOfUser);
@@ -98,7 +98,7 @@ function setBaseTiltAngle()
     betaBase = betaAngle
     cameraVideoPage.displayMessage("base angle: " + betaBase.toFixed(1) + "°", 1000)
     
-    //Check possible angles, Calculate if correct
+  //Check possible angles, Calculate if correct
     if (isNaN(heightOfUser) === false && betaApex > betaBase && betaBase > 0)
         {
             distance = calculateDistanceToObject(betaBase, heightOfUser);
@@ -118,7 +118,7 @@ function setApexTiltAngle()
     betaApex = betaAngle
     cameraVideoPage.displayMessage("apex angle: " + betaApex.toFixed(1) + "°", 1000)
     
-    //Check possible angles, Calculate if correct
+ //Check possible angles, Calculate if correct
     if (isNaN(heightOfUser) === false && betaApex > betaBase && betaBase > 0)
         {
             distance = calculateDistanceToObject(betaBase, heightOfUser);
@@ -134,7 +134,7 @@ function setApexTiltAngle()
 function cameraVideoPageInitialised(HTML)
 {
     cameraVideoPage.setHeadsUpDisplayHTML(HTML);
-    // Step 1: Check for and intialise deviceMotion
+    // Check for and intialise deviceMotion
 }
 
 
