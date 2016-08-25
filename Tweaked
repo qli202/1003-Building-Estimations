@@ -54,9 +54,6 @@ function handleOrientation(event)
 //Function to calculate distance from object
 function calculateDistance(beta, userHeight)
 {
-    // Declare variables
-    var distance, betaBaseRads;
-    
     // Convert beta to radians and calculate distance
     betaBaseRads = betaBase * (Math.PI / 180); // Assumes that device screen up is 0 degrees
     distance = userHeight * Math.tan(betaBaseRads);
@@ -66,9 +63,6 @@ function calculateDistance(beta, userHeight)
 // Function to determine the height of the object
 function calculateHeight(distance, userHeight, beta)
 {
-    // Declare variables
-    var objectHeight, heightAboveCamera, betaApexRads;
-    
     // Convert to radians and transform angle to construct triangle
     betaApexRads = (Math.PI / 180) * (beta - 90);
 
@@ -82,9 +76,6 @@ function calculateHeight(distance, userHeight, beta)
 // This function is called by a button to set the height of phone from the ground, in metres.
 function setCameraHeightValue()
 {
-    // Declare variables
-    var userHeight
-    
     // Prompt user for height
     userHeight = Number(prompt("Enter height of the user in metres: "));
     
