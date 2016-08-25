@@ -21,10 +21,10 @@ var cameraHeight, betaApex, heightOfUser, distance, height, betaBase
 var storedBeta = Array.apply(null, Array(20)).map(Number.prototype.valueOf,0);
 var cameraVideoPage = new CameraVideoPageController(
         cameraVideoPageInitialised);
-
+// add event listener 
 window.addEventListener("deviceorientation", handleOrientation, true);
 
-
+//function periodically gets called with updated orientation data
 function handleOrientation(event)
 {
     var betaSum = 0
@@ -77,7 +77,7 @@ function setCameraHeightValue()
         }
     
     cameraVideoPage.displayMessage("Height of user: " + heightOfUser + " metre/s", 1000)
-    
+    //check possible angles, calculate if correct
     if (isNaN(heightOfUser) === false && betaApex > betaBase && betaBase > 0)
         {
             distance = calculateDistanceToObject(betaBase, heightOfUser);
@@ -134,7 +134,7 @@ function setApexTiltAngle()
 function cameraVideoPageInitialised(HTML)
 {
     cameraVideoPage.setHeadsUpDisplayHTML(HTML);
-    // Step 1: Check for and intialise deviceMotion
+    //  Check for and intialise deviceMotion
 }
 
 
